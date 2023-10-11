@@ -70,6 +70,10 @@ model MemberRole {
   server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
 
   members Member[]
+  lockedChannels Channel[]
+  lockedAudioChannels AudioChannel[]
+  lockedAnnoucementChannels AnnoucementChannel[]
+  lockedForumChannels ForumChannel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,6 +91,10 @@ model Channel {
   rateLimitPerUser Int
   parentId String
   serverId String
+  roleLockIds MemberRole[]
+  audioChannels AudioChannel[]
+  annoucementChannel AnnoucementChannel[]
+  forumChannel ForumChannel[]
 
   server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
 
@@ -112,7 +120,6 @@ model Member {
   permissions Int
   serverId String
 
-
   server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -121,4 +128,44 @@ model Member {
   @@index([serverId], name: "serverId")
   @@index([profileId], name: "profileId")
 
+}
+
+model AudioChannel {
+  id String @id @default(uuid())
+  name String
+  topic String
+  position Int
+  channelId String
+  channel Channel @relation(fields: [channelId], references: [id])
+  roleLockIds MemberRole[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId], name: "channelId")
+}
+
+model AnnoucementChannel {
+  id String @id @default(uuid())
+  name String
+
+  channelId String
+  channel Channel @relation(fields: [channelId], references: [id])
+  roleLockIds MemberRole[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId], name: "channelId")
+}
+
+model ForumChannel {
+  id String @id @default(uuid())
+  name String
+
+  channelId String
+  channel Channel @relation(fields: [channelId], references: [id])
+  roleLockIds MemberRole[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId], name: "channelId")
 }
