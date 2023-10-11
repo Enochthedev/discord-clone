@@ -31,6 +31,12 @@ model Profile {
 
   servers Server[]
   members Member[]
+  channels Channel[]
+  voiceChannels VoiceChannel[]
+  annoucementChannel AnnoucementChannel[]
+  forumChannel ForumChannel[]
+  stageChannel StageChannel[]
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,6 +54,8 @@ model Server {
   channels Channel[]
   members Member[]
   roles MemberRole[]
+
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,30 +90,6 @@ model MemberRole {
   @@index([serverId], name: "serverId")
 }
 
-model Channel {
-  id String @id @default(uuid())
-  name String
-  topic String
-  type String
-  position Int
-  nsfw Boolean
-  rateLimitPerUser Int
-  parentId String
-  serverId String
-  roleLockIds MemberRole[]
-  voiceChannels VoiceChannel[]
-  annoucementChannel AnnoucementChannel[]
-  forumChannel ForumChannel[]
-  stageChannel StageChannel[]
-
-  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([serverId], name: "serverId")
-}
-
 model Member {
   id String @id @default(uuid())
   userId String
@@ -132,57 +116,100 @@ model Member {
 
 }
 
+model Channel {
+  id String @id @default(uuid())
+  name String
+  profileId String
+  topic String
+  type String
+  position Int
+  nsfw Boolean
+  rateLimitPerUser Int
+  parentId String
+  serverId String
+  roleLockIds MemberRole[]
+  voiceChannels VoiceChannel[]
+  annoucementChannel AnnoucementChannel[]
+  forumChannel ForumChannel[]
+  stageChannel StageChannel[]
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([serverId], name: "serverId")
+  @@index([profileId], name: "profileId")
+}
+
 model VoiceChannel {
   id String @id @default(uuid())
   name String
+  profileId String
   topic String
   position Int
+  nsfw Boolean
   channelId String
   channel Channel @relation(fields: [channelId], references: [id])
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   roleLockIds MemberRole[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([channelId], name: "channelId")
+  @@index([profileId], name: "profileId")
 }
 
 model AnnoucementChannel {
   id String @id @default(uuid())
   name String
-
-  channelId String
+  profileId String
+  channelId String 
+  nsfw Boolean
   channel Channel @relation(fields: [channelId], references: [id])
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   roleLockIds MemberRole[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([channelId], name: "channelId")
+  @@index([profileId], name: "profileId")
 }
 
 model ForumChannel {
   id String @id @default(uuid())
   name String
-
+  profileId String
   channelId String
+  nsfw Boolean
+  rateLimitPerUser Int
+  position Int
   channel Channel @relation(fields: [channelId], references: [id])
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   roleLockIds MemberRole[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([channelId], name: "channelId")
+  @@index([profileId], name: "profileId")
 }
 
 model StageChannel {
   id String @id @default(uuid())
   name String
   topic String
+  profileId String
+  nsfw Boolean
   position Int
   channelId String
   channel Channel @relation(fields: [channelId], references: [id])
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   roleLockIds MemberRole[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([channelId], name: "channelId")
+  @@index([profileId], name: "profileId")
 }
 
