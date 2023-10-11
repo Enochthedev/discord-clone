@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+//database models being defined 
+
+model Profile {
+  id String @id @default(uuid())
+  userId String @unique
+  name String 
+  imageUrl String @db.Text
+  email String @db.Text
+
+  servers Server[]
+  members Member[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Server {
+  id String @id @default(uuid())
+  name String
+  imageUrl String @db.Text
+  inviteUrl String @db.Text
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  channels Channel[]
+  members Member[]
+  roles MemberRole[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  @@index([profileId], name: "profileId")
+}
+
+model MemberRole {
+  id String @id @default(uuid())
+  name String
+  color String
+  hoist Boolean
+  position Int
+  permissions Int
+  managed Boolean
+  mentionable Boolean
+
+  serverId String
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  members Member[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([serverId], name: "serverId")
+}
+
+model Channel {
+  id String @id @default(uuid())
+  name String
+  topic String
+  type String
+  position Int
+  nsfw Boolean
+  rateLimitPerUser Int
+  parentId String
+  serverId String
+
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([serverId], name: "serverId")
+}
+
+model Member {
+  id String @id @default(uuid())
+  userId String
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  memberRoles MemberRole[]
+  nickname String
+  joinedAt DateTime
+  premiumSince DateTime
+  deaf Boolean
+  mute Boolean
+  pending Boolean
+  permissions Int
+  serverId String
+
+
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([serverId], name: "serverId")
+  @@index([profileId], name: "profileId")
+
+}
